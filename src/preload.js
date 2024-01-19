@@ -14,4 +14,7 @@ contextBridge.exposeInMainWorld('api', {
     getOptions: () => ipcRenderer.invoke('get-options'),
     selectBackupDirectory: () => ipcRenderer.invoke('select-backup-directory'),
     updateOptions: (data) => ipcRenderer.invoke('update-options', data),
+
+    // Backup
+    manualBackup: (data) => ipcRenderer.invoke('manual-backup', data),
 });

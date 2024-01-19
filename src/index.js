@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const fsPromises = require('fs').promises;
 const util = require('util');
 const readdir = util.promisify(fs.readdir);
+const archiver = require('archiver');
 
 const baseFileLocation = './src/baseFiles';
 const stored = './src/baseFiles/stored.txt';
@@ -57,6 +58,62 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// Backup Functionality
+ipcMain.handle('manual-backup', async (event, data) => {
+  if (!data || !data.backupDirectory || !data.backupContent) {
+    console.error('Invalid data provided for manual backup:', data);
+    return { success: false, message: 'Invalid data provided for manual backup.' };
+  }
+
+  try {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = currentDate.getDate().toString().padStart(2, '0');
+
+    const timestamp = `${year}_${month}_${day}`;
+    const compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}.zip`);
+    console.log('Compressed file will be saved to:', compressedFilePath);
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const output = fs.createWriteStream(compressedFilePath);
+
+    // Set up event listeners for archiver
+    output.on('close', () => {
+      console.log('Backup archive created successfully.');
+    });
+
+    archive.on('error', (err) => {
+      throw err;
+    });
+
+    archive.pipe(output);
+
+    for (const directory of data.backupContent) {
+      const fullDirectoryPath = path.resolve(directory.trim());
+      console.log('Adding directory to archive:', fullDirectoryPath);
+      archive.directory(fullDirectoryPath, path.basename(fullDirectoryPath));
+    }
+
+    await archive.finalize();
+
+    return { success: true, message: 'Manual backup completed successfully.', compressedFilePath };
+  } catch (error) {
+    console.error('Error during manual backup:', error);
+    return { success: false, message: 'Error during manual backup.' };
+  }
+});
+
+
+
+
+
+
+
+
+
+
 ipcMain.handle('select-backup-directory', async () => {
   try {
     const result = await dialog.showOpenDialog({

@@ -10,7 +10,7 @@ const saveOptionsButton_el = document.getElementById('saveOptionsButton');
 
 let options;
 
-let selectedDirectory;
+let backupDirectory;
 
 document.addEventListener('DOMContentLoaded', async () => {
     options = await api.getOptions();
@@ -47,16 +47,16 @@ function toggleOptions(){
 }
 
 selectBackupDirectory_el.addEventListener('click', async () => {
-    selectedDirectory = await api.selectBackupDirectory();
-    if (selectedDirectory !== null){
-        backupDirectoryText_el.textContent = selectedDirectory;
+    backupDirectory = await api.selectBackupDirectory();
+    if (backupDirectory !== null){
+        backupDirectoryText_el.textContent = backupDirectory;
     }
 });
 
 saveOptionsButton_el.addEventListener('click', async () => {
     const frequency = backupFrequencySelect_el.value;
     const limit = backupRetentionInput_el.value;
-    const saveResult = await api.updateOptions({directory: selectedDirectory, frequency, limit});
+    const saveResult = await api.updateOptions({directory: backupDirectory, frequency, limit});
     if (saveResult.success){
         options = saveResult.options;
         toggleOptions();
