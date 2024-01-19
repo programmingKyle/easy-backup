@@ -86,7 +86,7 @@ document.addEventListener('click', () => {
 });
 
 rcFileExplorer_el.addEventListener('click', () => {
-    api.openFileBrowser({path: rightClickedPath});
+    api.revealFileBrowser({path: rightClickedPath});
 });
 
 rcRemove_el.addEventListener('click', async () => {
@@ -96,5 +96,5 @@ rcRemove_el.addEventListener('click', async () => {
 
 bgrcFileExplorer_el.addEventListener('click', () => {
     console.log(currentDirectoryLocation);
-    api.openFileBrowser({path: currentDirectoryLocation});
+    api.revealFileBrowser({path: currentDirectoryLocation});
 });

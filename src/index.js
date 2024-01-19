@@ -171,18 +171,10 @@ ipcMain.handle('drop-save-handler', async (req, data) => {
   }
 });
 
-ipcMain.handle('open-file-browser', (event, data) => {
+ipcMain.handle('reveal-file-browser', (event, data) => {
   if (!data || !data.path) return;
-  const isAbsolute = path.isAbsolute(data.path);
-  const absolutePath = isAbsolute ? path.dirname(data.path) : constructAbsolutePath(data.path);
-  shell.openPath(absolutePath);
+  shell.openPath(data.path);
 });
-
-function constructAbsolutePath(relativePath) {
-  const baseDirectory = path.join(app.getAppPath()); // Go up one level from the app directory
-  const parentDirectory = path.dirname(relativePath);
-  return path.join(baseDirectory, parentDirectory);
-}
 
 ipcMain.handle('remove-from-stored', async (req, data) => {
   if (!data || !data.path) return;
