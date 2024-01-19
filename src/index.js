@@ -7,6 +7,7 @@ const readdir = util.promisify(fs.readdir);
 
 const baseFileLocation = './src/baseFiles';
 const stored = './src/baseFiles/stored.txt';
+const optionsFilePath = './src/baseFiles/options.json';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -56,15 +57,78 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+ipcMain.handle('select-backup-directory', async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Backup Directory',
+    });
+
+    const selectedPath = result.filePaths[0];
+
+    return selectedPath || null;
+  } catch (err) {
+    console.error('Error opening directory dialog:', err);
+    return null;
+  }
+});
+
+ipcMain.handle('update-options', async (event, data) => {
+  if (!data) return { success: false, options: null };
+
+  try {
+    // Read existing options from the file
+    const existingOptionsContent = await fs.readFile(optionsFilePath, 'utf-8');
+    const existingOptions = JSON.parse(existingOptionsContent);
+
+    // Update relevant fields with the new data
+    existingOptions.fileDirectory = data.directory || existingOptions.fileDirectory;
+    existingOptions.backupFrequency = data.frequency || existingOptions.backupFrequency;
+    existingOptions.backupLimit = data.limit || existingOptions.backupLimit;
+
+    // Write the updated options back to the file
+    await fs.writeFile(optionsFilePath, JSON.stringify(existingOptions, null, 2), 'utf-8');
+
+    return { success: true, options: existingOptions };
+  } catch (err) {
+    console.error('Error updating options:', err);
+    return { success: false, options: null };
+  }
+});
+
+ipcMain.handle('get-options', async () => {
+  try {
+    // Check if options file exists
+    await fs.access(optionsFilePath);
+
+    // If the file exists, read and return its content
+    const optionsContent = await fs.readFile(optionsFilePath, 'utf-8');
+    const options = JSON.parse(optionsContent);
+    return options;
+  } catch (err) {
+    const defaultOptions = {
+      fileDirectory: '',
+      backupFrequency: 'off',
+      backupLimit: 20,
+    };
+    await fs.writeFile(optionsFilePath, JSON.stringify(defaultOptions, null, 2), 'utf-8');
+    return defaultOptions;
+  }
+});
+
+
+
+
+
+
+
 async function setupPrerequisites() {
   try {
     await fs.ensureDir(baseFileLocation);
     try {
       await fs.readFile(stored, 'utf-8');
-      console.log('File already exists.');
     } catch (err) {
       await fs.writeFile(stored, '', 'utf-8');
-      console.log('File created successfully.');
     }
   } catch (err) {
     console.error('Error ensuring directory:', err);

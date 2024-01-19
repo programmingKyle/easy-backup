@@ -30,15 +30,15 @@
           <div style="margin: 10px; overflow: hidden;">
             <div class="options-grid">
               <h4>Backup Location</h4>
-              <h6 id="backupDirectoryText" class="options-screenshot-location">C/Location</h6>
+              <h6 id="backupDirectoryText" class="options-screenshot-location">No backup location selected</h6>
               <div style="display: grid; grid-template-columns: 1fr;">
-                <button id="selectBackupDirectory" class="user-button">Select Folder</button>
+                <button id="selectBackupDirectory" class="user-button">Select Location</button>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;">
                 <div>
                   <h4>Automatic Backup</h4>
                   <div style="display: grid">
-                    <select id="backupFrequency" name="backupFrequency">
+                    <select id="backupFrequencySelect" name="backupFrequency">
                       <option value="off">Off</option>
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
@@ -49,14 +49,14 @@
                 <div>
                   <h4>Backup Limit</h4>
                   <div style="display: grid;">
-                    <input type="number" id="backupRetention" name="backupRetention" value="20">
+                    <input type="number" id="backupRetentionInput" name="backupRetention" value="20">
                   </div>    
                 </div>
               </div>
             </div>  
           </div>
           <div style="display: grid; margin: 0 auto; place-content: center;">
-            <button class="options-save-button">Save</button>
+            <button id="saveOptionsButton" class="options-save-button">Save</button>
           </div>
         </div>
       </div>
