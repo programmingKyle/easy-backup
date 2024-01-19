@@ -84,15 +84,6 @@ async function populateFolderContent(contents){
     
         contentContainer_el.append(itemContainer_el);
 
-        if (storedContent.includes(content)){
-            itemIcon_el.classList.add('linked');
-        }
-
-        if (storedContent.includes(currentDirectoryLocation)){
-            console.log('Current directory is in stored information');
-            itemIcon_el.classList.add('linked');
-        }
-
         await contentItemClick(itemContainer_el, content, fileName);
     }
 }

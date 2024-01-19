@@ -9,6 +9,9 @@ const contextMenuFileFolder_el = document.getElementById('contextMenuFileFolder'
 const rcFileExplorer_el = document.getElementById('rcFileExplorer');
 const rcRemove_el = document.getElementById('rcRemove');
 
+// For right clicking background
+const bgrcFileExplorer_el = document.getElementById('bgrcFileExplorer');
+
 let rightClickedPath = '';
 let rightClickItem = '';
 
@@ -19,6 +22,9 @@ function rightClickMenu(e, path){
     switch (rightClickItem){
         case 'Background':
             contextMenuBackground_el.style.display = 'grid';
+            if (directoryLocation.length !== 0){
+                bgrcFileExplorer_el.style.display = 'grid';
+            }
             break;
         case 'File':
             contextMenuFileFolder_el.style.display = 'grid';
@@ -86,4 +92,9 @@ rcFileExplorer_el.addEventListener('click', () => {
 rcRemove_el.addEventListener('click', async () => {
     removeOverlay_el.style.display = 'flex';
     fileManagerRemove(rightClickedPath);
+});
+
+bgrcFileExplorer_el.addEventListener('click', () => {
+    console.log(currentDirectoryLocation);
+    api.openFileBrowser({path: currentDirectoryLocation});
 });

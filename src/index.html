@@ -10,6 +10,7 @@
   <body>
     <div class="context-menu" id="customContextMenu">
       <div id="contextMenuBackground" style="display: none;">
+        <div id="bgrcFileExplorer" class="context-menu-item" style="display: none;">Reveal in File Explorer</div>
       </div>
       <div id="contextMenuFileFolder" style="display: none;">
         <div id="rcFileExplorer" class="context-menu-item">Reveal in File Explorer</div>
@@ -45,7 +46,10 @@
       </div>
 
       <div style="display: grid; grid-template-rows: repeat(2, auto);">
-        <button id="addNewFileButton" class="user-button" style="margin-bottom: 0px;">Backup Now</button>
+        <div style="display: grid; grid-template-columns: 1fr auto; grid-gap: 5px; margin: 0px 10px;">
+          <button id="manualBackupButton" class="user-button" style="margin-bottom: 0px;">Backup Now</button>
+          <button id="backupSettingsButton" class="user-button fas fa-gear" style="margin-bottom: 0px;"></button>
+        </div>
         <h6>Last Backup: 2024-01-18 @ 23:00</h6>
       </div>
 
