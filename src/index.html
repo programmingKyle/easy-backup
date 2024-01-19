@@ -20,6 +20,50 @@
       </div>
     </div>
 
+    <div id="optionsOverlay" class="overlay" style="display: none;">
+      <div class="centered-container" style="text-align: center;">
+        <div style="display: grid; grid-template-columns: 1fr auto;">
+          <h3>Options</h3>
+          <button id="optionsClose" class="slim-button fa-solid fa-x"></button>
+        </div>
+        <div style="display: grid;">
+          <div style="margin: 10px; overflow: hidden;">
+            <div class="options-grid">
+              <h4>Backup Location</h4>
+              <h6 id="backupDirectoryText" class="options-screenshot-location">C/Location</h6>
+              <div style="display: grid; grid-template-columns: 1fr;">
+                <button id="selectBackupDirectory" class="user-button">Select Folder</button>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;">
+                <div>
+                  <h4>Automatic Backup</h4>
+                  <div style="display: grid">
+                    <select id="backupFrequency" name="backupFrequency">
+                      <option value="off">Off</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>              
+                  </div>    
+                </div>
+                <div>
+                  <h4>Backup Limit</h4>
+                  <div style="display: grid;">
+                    <input type="number" id="backupRetention" name="backupRetention" value="20">
+                  </div>    
+                </div>
+              </div>
+            </div>  
+          </div>
+          <div style="display: grid; margin: 0 auto; place-content: center;">
+            <button class="options-save-button">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+
     <div id="removeOverlay" class="overlay" style="display: none;">
       <div class="centered-container" style="text-align: center;">
           <div style="display: grid; grid-template-columns: 1fr; margin-bottom: 10px;">
@@ -61,6 +105,7 @@
   <script src="fileManager.js"></script>
   <script src="dropFiles.js"></script>
   <script src="rightClick.js"></script>
+  <script src="options.js"></script>
 </html>
 
 
