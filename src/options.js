@@ -3,6 +3,7 @@ const optionsClose_el = document.getElementById('optionsClose');
 const backupDirectoryText_el = document.getElementById('backupDirectoryText');
 const selectBackupDirectory_el = document.getElementById('selectBackupDirectory');
 const backupSettingsButton_el = document.getElementById('backupSettingsButton');
+const compressionLevelSelect_el = document.getElementById('compressionLevelSelect');
 
 const backupFrequencySelect_el = document.getElementById('backupFrequencySelect');
 const backupRetentionInput_el = document.getElementById('backupRetentionInput');
@@ -27,6 +28,7 @@ async function populateSettings(){
     }
     backupFrequencySelect_el.value = options.backupFrequency;
     backupRetentionInput_el.value = options.backupLimit;
+    compressionLevelSelect_el.value = options.compression;
 }
 
 backupSettingsButton_el.addEventListener('click', () => {
@@ -56,7 +58,8 @@ selectBackupDirectory_el.addEventListener('click', async () => {
 saveOptionsButton_el.addEventListener('click', async () => {
     const frequency = backupFrequencySelect_el.value;
     const limit = backupRetentionInput_el.value;
-    const saveResult = await api.updateOptions({directory: backupDirectory, frequency, limit});
+    const compression = compressionLevelSelect_el.value;
+    const saveResult = await api.updateOptions({directory: backupDirectory, frequency, limit, compression});
     if (saveResult.success){
         options = saveResult.options;
         toggleOptions();

@@ -61,10 +61,12 @@ app.on('activate', () => {
 
 // Backup Functionality
 ipcMain.handle('manual-backup', async (event, data) => {
-  if (!data || !data.backupDirectory || !data.backupContent || !data.backupLimit) return;
-  const isWithinLimit = await checkBackupLimit(data.backupDirectory, data.backupLimit);
-  if (!isWithinLimit) {
-    await deleteOldestBackup(data.backupDirectory);
+  if (!data || !data.backupDirectory || !data.backupContent || !data.backupLimit || !data.compression) return;
+  if (parseInt(data.backupLimit) !== 0){
+    const isWithinLimit = await checkBackupLimit(data.backupDirectory, data.backupLimit);
+    if (!isWithinLimit) {
+      await deleteOldestBackup(data.backupDirectory);
+    }  
   }
   try {
     const currentDate = new Date();
@@ -83,7 +85,7 @@ ipcMain.handle('manual-backup', async (event, data) => {
       compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}(${index}).zip`);
     }
 
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', { zlib: { level: parseInt(data.compression) } });
     const output = fs.createWriteStream(compressedFilePath);
 
     // Call the progressBar function
@@ -161,7 +163,7 @@ async function progressBar(archive, output, event, data, compressedFilePath) {
 
   // Set up event listeners for archiver
   output.on('close', () => {
-    console.log('Backup archive created successfully:', compressedFilePath);
+    event.sender.send('backup-progress', 0);
   });
 
   archive.on('error', (err) => {
@@ -234,6 +236,7 @@ ipcMain.handle('update-options', async (event, data) => {
     existingOptions.fileDirectory = data.directory || existingOptions.fileDirectory;
     existingOptions.backupFrequency = data.frequency || existingOptions.backupFrequency;
     existingOptions.backupLimit = data.limit || existingOptions.backupLimit;
+    existingOptions.compression = data.compression || existingOptions.compression;
 
     // Write the updated options back to the file
     await fs.writeFile(optionsFilePath, JSON.stringify(existingOptions, null, 2), 'utf-8');
@@ -259,6 +262,7 @@ ipcMain.handle('get-options', async () => {
       fileDirectory: '',
       backupFrequency: 'off',
       backupLimit: 20,
+      compression: 5,
     };
     await fs.writeFile(optionsFilePath, JSON.stringify(defaultOptions, null, 2), 'utf-8');
     return defaultOptions;

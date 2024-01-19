@@ -9,7 +9,8 @@ manualBackupButton_el.addEventListener('click', async () => {
     const backupContent = await api.getContent();
     const backupDirectory = options.fileDirectory;
     const backupLimit = options.backupLimit;
-    await api.manualBackup({backupDirectory, backupContent, backupLimit});
+    const compression = options.compression;
+    await api.manualBackup({backupDirectory, backupContent, backupLimit, compression});
     backupControlsDiv_el.style.display = 'grid';
     backupProgressDiv_el.style.display = 'none';
 });

@@ -34,9 +34,9 @@
               <div style="display: grid; grid-template-columns: 1fr;">
                 <button id="selectBackupDirectory" class="user-button">Select Location</button>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; grid-gap: 5px;">
                 <div>
-                  <h4>Automatic Backup</h4>
+                  <h4>Auto Backup</h4>
                   <div style="display: grid">
                     <select id="backupFrequencySelect" name="backupFrequency">
                       <option value="off">Off</option>
@@ -50,6 +50,23 @@
                   <h4>Backup Limit</h4>
                   <div style="display: grid;">
                     <input type="number" id="backupRetentionInput" name="backupRetention" value="20">
+                  </div>    
+                </div>
+                <div>
+                  <h4>Compression</h4>
+                  <div style="display: grid;">
+                    <select id="compressionLevelSelect" name="compressionLevelSelect">
+                      <option value="0">Off</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                    </select>              
                   </div>    
                 </div>
               </div>
