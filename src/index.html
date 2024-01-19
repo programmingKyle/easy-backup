@@ -1,12 +1,61 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!--https://coolors.co/palette/0d1b2a-1b263b-415a77-778da9-e0e1dd-->
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
+    <title>Easy Backup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <div class="context-menu" id="customContextMenu">
+      <div id="contextMenuBackground" style="display: none;">
+      </div>
+      <div id="contextMenuFileFolder" style="display: none;">
+        <div id="rcFileExplorer" class="context-menu-item">Reveal in File Explorer</div>
+        <div id="rcRemove" class="context-menu-item" style="display: none;">Remove</div>
+      </div>
+    </div>
+
+    <div id="removeOverlay" class="overlay" style="display: none;">
+      <div class="centered-container" style="text-align: center;">
+          <div style="display: grid; grid-template-columns: 1fr; margin-bottom: 10px;">
+              <h2>Are you sure you want to remove?</h2>
+              <h5 style="padding: 0px; margin: 0px;">This will not delete the file or folder.</h5>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 10px;">
+            <button id="confirmRemoveButton" class="input-button">Remove</button>
+            <button id="cancelRemoveButton" class="input-button">Cancel</button>
+          </div>
+      </div>
+    </div>
+
+
+
+    <div class="base-grid">
+      <div class="home-header-grid">
+        <h2 class="main-header" id="locationHeader" style="text-align: left;">Easy Backup</h2>
+        <button id="refreshButton" class="slim-button fas fa-refresh" style="margin-right: 10px; font-size: 16px;"></button>
+        <div id="searchForContentDiv" style="display: flex; justify-content: center; align-items: center;">
+          <button id="addLocationButton" class="slim-button fas fa-plus"></button>
+        </div>
+      </div>
+
+      <div id="contentContainer" class="container overview-grid">
+      </div>
+
+      <div style="display: grid; grid-template-rows: repeat(2, auto);">
+        <button id="addNewFileButton" class="user-button" style="margin-bottom: 0px;">Backup Now</button>
+        <h6>Last Backup: 2024-01-18 @ 23:00</h6>
+      </div>
+
+    </div>
   </body>
+  <script src="storedContent.js"></script>
+  <script src="fileManager.js"></script>
+  <script src="dropFiles.js"></script>
+  <script src="rightClick.js"></script>
 </html>
+
+
+
