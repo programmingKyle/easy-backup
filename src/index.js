@@ -61,7 +61,11 @@ app.on('activate', () => {
 
 // Backup Functionality
 ipcMain.handle('manual-backup', async (event, data) => {
-  if (!data || !data.backupDirectory || !data.backupContent) return;
+  if (!data || !data.backupDirectory || !data.backupContent || !data.backupLimit) return;
+  const isWithinLimit = await checkBackupLimit(data.backupDirectory, data.backupLimit);
+  if (!isWithinLimit) {
+    await deleteOldestBackup(data.backupDirectory);
+  }
   try {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -69,8 +73,9 @@ ipcMain.handle('manual-backup', async (event, data) => {
     const day = currentDate.getDate().toString().padStart(2, '0');
 
     const timestamp = `${year}_${month}_${day}`;
-    let index = 0;
-    let compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}.zip`);
+    let index = await findHighestIndex(data.backupDirectory) + 1; // Start from the next index
+
+    let compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}(${index}).zip`);
 
     // Check if the file already exists
     while (await fileExists(compressedFilePath)) {
@@ -81,33 +86,8 @@ ipcMain.handle('manual-backup', async (event, data) => {
     const archive = archiver('zip', { zlib: { level: 9 } });
     const output = fs.createWriteStream(compressedFilePath);
 
-    // Get total size of files
-    let totalSize = 0;
-    for (const directory of data.backupContent) {
-      const files = await getAllFiles(directory.trim());
-      for (const file of files) {
-        const stats = await fsPromises.stat(file);
-        totalSize += stats.size;
-      }
-    }
-
-    // Set up event listeners for archiver
-    output.on('close', () => {
-      console.log('Backup archive created successfully:', compressedFilePath);
-    });
-
-    archive.on('error', (err) => {
-      throw err;
-    });
-
-    let processedBytes = 0;
-
-    archive.on('progress', (progress) => {
-      processedBytes = progress.fs.processedBytes;
-      const percent = Math.round((processedBytes / totalSize) * 100);
-      // Send the progress information to the renderer process
-      event.sender.send('backup-progress', percent);
-    });
+    // Call the progressBar function
+    await progressBar(archive, output, event, data, compressedFilePath);
 
     archive.pipe(output);
 
@@ -124,6 +104,79 @@ ipcMain.handle('manual-backup', async (event, data) => {
     return false;
   }
 });
+
+// Function to find the highest index in the backup directory
+async function findHighestIndex(directory) {
+  const files = await fs.promises.readdir(directory);
+  const backupFiles = files.filter((file) => /^backup_\d{4}_\d{2}_\d{2}\((\d+)\)\.zip$/.test(file));
+  const indices = backupFiles.map((file) => parseInt(file.match(/\((\d+)\)\.zip$/)[1], 10));
+  return indices.length > 0 ? Math.max(...indices) : 0;
+}
+
+async function deleteOldestBackup(directory) {
+  try {
+    const files = await fs.readdir(directory);
+    const backupFiles = files.filter((file) => /^backup_\d{4}_\d{2}_\d{2}(\(\d{1,}\))?\.zip$/.test(file));
+    const fileStats = await Promise.all(
+      backupFiles.map(async (file) => {
+        const stat = await fs.stat(path.join(directory, file));
+        return { file, createdAt: stat.birthtime };
+      })
+    );
+    fileStats.sort((a, b) => a.createdAt - b.createdAt);
+    const oldestBackupPath = path.join(directory, fileStats[0].file);
+    await fs.unlink(oldestBackupPath);
+    return true;
+  } catch (error) {
+    console.error('Error deleting oldest backup:', error);
+    return false;
+  }
+}
+
+async function checkBackupLimit(directory, backupLimit) {
+  try {
+    const files = await fs.readdir(directory);
+    const backupFiles = files.filter((file) => /^backup_\d{4}_\d{2}_\d{2}(\(\d{1,}\))?\.zip$/.test(file));
+    if (backupFiles.length >= parseInt(backupLimit, 10)) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Error checking backup limit:', error);
+    return false;
+  }
+}
+
+async function progressBar(archive, output, event, data, compressedFilePath) {
+  let totalSize = 0;
+
+  // Calculate total size of files
+  for (const directory of data.backupContent) {
+    const files = await getAllFiles(directory.trim());
+    for (const file of files) {
+      const stats = await fsPromises.stat(file);
+      totalSize += stats.size;
+    }
+  }
+
+  // Set up event listeners for archiver
+  output.on('close', () => {
+    console.log('Backup archive created successfully:', compressedFilePath);
+  });
+
+  archive.on('error', (err) => {
+    throw err;
+  });
+
+  let processedBytes = 0;
+
+  archive.on('progress', (progress) => {
+    processedBytes = progress.fs.processedBytes;
+    const percent = Math.round((processedBytes / totalSize) * 100);
+    // Send the progress information to the renderer process
+    event.sender.send('backup-progress', percent);
+  });
+}
 
 async function getAllFiles(dir) {
   const dirents = await fsPromises.readdir(dir, { withFileTypes: true });

@@ -8,7 +8,8 @@ manualBackupButton_el.addEventListener('click', async () => {
     backupProgressDiv_el.style.display = 'grid';
     const backupContent = await api.getContent();
     const backupDirectory = options.fileDirectory;
-    await api.manualBackup({backupDirectory, backupContent});
+    const backupLimit = options.backupLimit;
+    await api.manualBackup({backupDirectory, backupContent, backupLimit});
     backupControlsDiv_el.style.display = 'grid';
     backupProgressDiv_el.style.display = 'none';
 });
