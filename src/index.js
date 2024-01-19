@@ -61,11 +61,7 @@ app.on('activate', () => {
 
 // Backup Functionality
 ipcMain.handle('manual-backup', async (event, data) => {
-  if (!data || !data.backupDirectory || !data.backupContent) {
-    console.error('Invalid data provided for manual backup:', data);
-    return { success: false, message: 'Invalid data provided for manual backup.' };
-  }
-
+  if (!data || !data.backupDirectory || !data.backupContent) return;
   try {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -73,37 +69,80 @@ ipcMain.handle('manual-backup', async (event, data) => {
     const day = currentDate.getDate().toString().padStart(2, '0');
 
     const timestamp = `${year}_${month}_${day}`;
-    const compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}.zip`);
-    console.log('Compressed file will be saved to:', compressedFilePath);
+    let index = 0;
+    let compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}.zip`);
+
+    // Check if the file already exists
+    while (await fileExists(compressedFilePath)) {
+      index++;
+      compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}(${index}).zip`);
+    }
 
     const archive = archiver('zip', { zlib: { level: 9 } });
     const output = fs.createWriteStream(compressedFilePath);
 
+    // Get total size of files
+    let totalSize = 0;
+    for (const directory of data.backupContent) {
+      const files = await getAllFiles(directory.trim());
+      for (const file of files) {
+        const stats = await fsPromises.stat(file);
+        totalSize += stats.size;
+      }
+    }
+
     // Set up event listeners for archiver
     output.on('close', () => {
-      console.log('Backup archive created successfully.');
+      console.log('Backup archive created successfully:', compressedFilePath);
     });
 
     archive.on('error', (err) => {
       throw err;
     });
 
+    let processedBytes = 0;
+
+    archive.on('progress', (progress) => {
+      processedBytes = progress.fs.processedBytes;
+      const percent = Math.round((processedBytes / totalSize) * 100);
+      // Send the progress information to the renderer process
+      event.sender.send('backup-progress', percent);
+    });
+
     archive.pipe(output);
 
     for (const directory of data.backupContent) {
       const fullDirectoryPath = path.resolve(directory.trim());
-      console.log('Adding directory to archive:', fullDirectoryPath);
       archive.directory(fullDirectoryPath, path.basename(fullDirectoryPath));
     }
 
     await archive.finalize();
 
-    return { success: true, message: 'Manual backup completed successfully.', compressedFilePath };
+    return true;
   } catch (error) {
-    console.error('Error during manual backup:', error);
-    return { success: false, message: 'Error during manual backup.' };
+    console.error(error);
+    return false;
   }
 });
+
+async function getAllFiles(dir) {
+  const dirents = await fsPromises.readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(dirents.map((dirent) => {
+    const res = path.resolve(dir, dirent.name);
+    return dirent.isDirectory() ? getAllFiles(res) : res;
+  }));
+  return Array.prototype.concat(...files);
+}
+
+async function fileExists(filePath) {
+  try {
+    await fs.promises.access(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 
 
 

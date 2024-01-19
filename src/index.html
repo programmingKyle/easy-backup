@@ -92,9 +92,12 @@
       </div>
 
       <div style="display: grid; grid-template-rows: repeat(2, auto);">
-        <div style="display: grid; grid-template-columns: 1fr auto; grid-gap: 5px; margin: 0px 10px;">
+        <div id="backupControlsDiv" style="display: grid; grid-template-columns: 1fr auto; grid-gap: 5px; margin: 0px 10px;">
           <button id="manualBackupButton" class="user-button" style="margin-bottom: 0px;">Backup Now</button>
           <button id="backupSettingsButton" class="user-button fas fa-gear" style="margin-bottom: 0px;"></button>
+        </div>
+        <div id="backupProgressDiv" class="progress-container">
+          <div itemid="backupProgressBar" class="progress-bar" id="backupProgressBar"></div>
         </div>
         <h6>Last Backup: 2024-01-18 @ 23:00</h6>
       </div>

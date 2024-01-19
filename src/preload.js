@@ -17,4 +17,10 @@ contextBridge.exposeInMainWorld('api', {
 
     // Backup
     manualBackup: (data) => ipcRenderer.invoke('manual-backup', data),
+
+    onBackupProgress: (callback) => {
+        ipcRenderer.on('backup-progress', (_, percent) => {
+          callback(percent);
+        });
+    },
 });
