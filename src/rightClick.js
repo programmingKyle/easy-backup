@@ -7,6 +7,7 @@ const contextBGAddFolder_el = document.getElementById('contextBGAddFolder');
 // Folder/File Click Elements
 const contextMenuFileFolder_el = document.getElementById('contextMenuFileFolder');
 const rcFileExplorer_el = document.getElementById('rcFileExplorer');
+const rcFindFileExplorer_el = document.getElementById('rcFindFileExplorer');
 const rcRemove_el = document.getElementById('rcRemove');
 
 // For right clicking background
@@ -86,7 +87,11 @@ document.addEventListener('click', () => {
 });
 
 rcFileExplorer_el.addEventListener('click', () => {
-    api.revealFileBrowser({path: rightClickedPath});
+    api.openFileBrowser({path: rightClickedPath});
+});
+
+rcFindFileExplorer_el.addEventListener('click', () => {
+    api.findFileBrowser({path: rightClickedPath});
 });
 
 rcRemove_el.addEventListener('click', async () => {
@@ -96,5 +101,5 @@ rcRemove_el.addEventListener('click', async () => {
 
 bgrcFileExplorer_el.addEventListener('click', () => {
     console.log(currentDirectoryLocation);
-    api.revealFileBrowser({path: currentDirectoryLocation});
+    api.openFileBrowser({path: currentDirectoryLocation});
 });

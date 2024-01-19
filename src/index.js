@@ -171,9 +171,17 @@ ipcMain.handle('drop-save-handler', async (req, data) => {
   }
 });
 
-ipcMain.handle('reveal-file-browser', (event, data) => {
+ipcMain.handle('open-file-browser', (event, data) => {
   if (!data || !data.path) return;
   shell.openPath(data.path);
+});
+
+ipcMain.handle('find-file-browser', (req, data) => {
+  if (!data || !data.path) return;
+  const splitPath = data.path.split(path.sep);
+  splitPath.pop();
+  const updatedPath = path.join(...splitPath);
+  shell.openPath(updatedPath);
 });
 
 ipcMain.handle('remove-from-stored', async (req, data) => {

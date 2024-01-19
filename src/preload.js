@@ -14,7 +14,8 @@ contextBridge.exposeInMainWorld('api', {
 
     dropSaveHandler: (data) => ipcRenderer.invoke('drop-save-handler', data),
 
-    revealFileBrowser: (data) => ipcRenderer.invoke('reveal-file-browser', data),
-
+    openFileBrowser: (data) => ipcRenderer.invoke('open-file-browser', data),
+    findFileBrowser: (data) => ipcRenderer.invoke('find-file-browser', data),
+    
     removeFromStored: (data) => ipcRenderer.invoke('remove-from-stored', data),
 });
