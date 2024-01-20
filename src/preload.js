@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld('api', {
     updateOptions: (data) => ipcRenderer.invoke('update-options', data),
 
     // Backup
-    manualBackup: (data) => ipcRenderer.invoke('manual-backup', data),
+    fullBackup: (data) => ipcRenderer.invoke('full-backup', data),
 
     onBackupProgress: (callback) => {
         ipcRenderer.on('backup-progress', (_, percent) => {

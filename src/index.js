@@ -58,10 +58,15 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+async function getBackupDirectories() {
+  const alreadySavedContent = await fs.promises.readFile(stored, 'utf-8');
+  const savedLines = alreadySavedContent.split('\n').filter((line) => line.trim() !== '');
+  return savedLines;
+};
 
 // Backup Functionality
-ipcMain.handle('manual-backup', async (event, data) => {
-  if (!data || !data.backupDirectory || !data.backupContent || !data.backupLimit || !data.compression) return;
+ipcMain.handle('full-backup', async (event, data) => {
+  if (!data || !data.backupDirectory || !data.backupLimit || !data.compression) return;
   if (parseInt(data.backupLimit) !== 0){
     const isWithinLimit = await checkBackupLimit(data.backupDirectory, data.backupLimit);
     if (!isWithinLimit) {
@@ -93,7 +98,9 @@ ipcMain.handle('manual-backup', async (event, data) => {
 
     archive.pipe(output);
 
-    for (const directory of data.backupContent) {
+    const backupContent = await getBackupDirectories();
+
+    for (const directory of backupContent) {
       const fullDirectoryPath = path.resolve(directory.trim());
       archive.directory(fullDirectoryPath, path.basename(fullDirectoryPath));
     }
@@ -152,8 +159,10 @@ async function checkBackupLimit(directory, backupLimit) {
 async function progressBar(archive, output, event, data, compressedFilePath) {
   let totalSize = 0;
 
+  const backupContent = await getBackupDirectories();
+
   // Calculate total size of files
-  for (const directory of data.backupContent) {
+  for (const directory of backupContent) {
     const files = await getAllFiles(directory.trim());
     for (const file of files) {
       const stats = await fsPromises.stat(file);

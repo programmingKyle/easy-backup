@@ -11,8 +11,6 @@ const saveOptionsButton_el = document.getElementById('saveOptionsButton');
 
 let options;
 
-let backupDirectory;
-
 document.addEventListener('DOMContentLoaded', async () => {
     options = await api.getOptions();
     if (options.fileDirectory === ''){
