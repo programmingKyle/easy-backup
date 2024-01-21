@@ -112,7 +112,7 @@ ipcMain.handle('full-backup', async (event, data) => {
     }
 
     await archive.finalize();
-
+    await logBackupTime();
     return true;
   } catch (error) {
     console.error(error);
@@ -120,6 +120,29 @@ ipcMain.handle('full-backup', async (event, data) => {
   }
 });
 
+async function logBackupTime() {
+  try {
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    });
+
+    const optionsRead = await fs.readFile(optionsFilePath, 'utf-8');
+    const options = JSON.parse(optionsRead);
+    options.lastBackup = formattedTime;
+    await fs.writeFile(optionsFilePath, JSON.stringify(options, null, 2), 'utf-8');
+
+    
+    console.log('Backup time logged successfully:', formattedTime);
+  } catch (error) {
+    console.error('Error logging backup time:', error);
+  }
+}
 // Function to find the highest index in the backup directory
 async function findHighestIndex(directory) {
   const files = await fs.promises.readdir(directory);
@@ -268,6 +291,7 @@ ipcMain.handle('get-options', async () => {
       backupFrequency: 'off',
       backupLimit: 20,
       compression: 5,
+      lastBackup: 'No Backup',
     };
     await fs.writeFile(optionsFilePath, JSON.stringify(defaultOptions, null, 2), 'utf-8');
     return defaultOptions;
