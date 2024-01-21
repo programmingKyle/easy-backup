@@ -70,15 +70,15 @@ async function getBackupDirectories() {
   return savedLines;
 };
 
-// Backup Functionality
 ipcMain.handle('full-backup', async (event, data) => {
   if (!data || !data.backupDirectory || !data.backupLimit || !data.compression) return;
-  if (parseInt(data.backupLimit) !== 0){
+  if (parseInt(data.backupLimit) !== 0) {
     const isWithinLimit = await checkBackupLimit(data.backupDirectory, data.backupLimit);
     if (!isWithinLimit) {
       await deleteOldestBackup(data.backupDirectory);
-    }  
+    }
   }
+
   try {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -86,14 +86,15 @@ ipcMain.handle('full-backup', async (event, data) => {
     const day = currentDate.getDate().toString().padStart(2, '0');
 
     const timestamp = `${year}_${month}_${day}`;
-    let index = await findHighestIndex(data.backupDirectory) + 1; // Start from the next index
+    let index = await findHighestIndex(data.backupDirectory);
 
-    let compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}(${index}).zip`);
+    let compressedFilePath;
+    compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}${index > 0 ? `(${index + 1})` : ''}.zip`);
 
     // Check if the file already exists
     while (await fileExists(compressedFilePath)) {
       index++;
-      compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}(${index}).zip`);
+      compressedFilePath = path.join(data.backupDirectory, `backup_${timestamp}${index > 0 ? `(${index + 1})` : ''}.zip`);
     }
 
     const archive = archiver('zip', { zlib: { level: parseInt(data.compression) } });
@@ -120,6 +121,15 @@ ipcMain.handle('full-backup', async (event, data) => {
   }
 });
 
+
+// Function to find the highest index in the backup directory
+async function findHighestIndex(directory) {
+  const files = await fs.promises.readdir(directory);
+  const backupFiles = files.filter((file) => /^backup_\d{4}_\d{2}_\d{2}\((\d+)\)\.zip$/.test(file));
+  const indices = backupFiles.map((file) => parseInt(file.match(/\((\d+)\)\.zip$/)[1], 10));
+  return indices.length > 0 ? Math.max(...indices) : 0;
+}
+
 async function logBackupTime() {
   try {
     const currentTime = new Date();
@@ -142,13 +152,6 @@ async function logBackupTime() {
   } catch (error) {
     console.error('Error logging backup time:', error);
   }
-}
-// Function to find the highest index in the backup directory
-async function findHighestIndex(directory) {
-  const files = await fs.promises.readdir(directory);
-  const backupFiles = files.filter((file) => /^backup_\d{4}_\d{2}_\d{2}\((\d+)\)\.zip$/.test(file));
-  const indices = backupFiles.map((file) => parseInt(file.match(/\((\d+)\)\.zip$/)[1], 10));
-  return indices.length > 0 ? Math.max(...indices) : 0;
 }
 
 async function deleteOldestBackup(directory) {
