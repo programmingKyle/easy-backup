@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('api', {
     updateOptions: (data) => ipcRenderer.invoke('update-options', data),
 
     // Backup
+    openBackupFolder: () => ipcRenderer.invoke('open-backup-folder'),
+    
     fullBackup: (data) => ipcRenderer.invoke('full-backup', data),
 
     onBackupProgress: (callback) => {

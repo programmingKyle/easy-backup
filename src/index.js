@@ -58,6 +58,12 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+ipcMain.handle('open-backup-folder', async () => {
+  const optionsContent = await fs.readFile(optionsFilePath, 'utf-8');
+  const options = JSON.parse(optionsContent);
+  shell.openPath(options.fileDirectory);
+});
+
 async function getBackupDirectories() {
   const alreadySavedContent = await fs.promises.readFile(stored, 'utf-8');
   const savedLines = alreadySavedContent.split('\n').filter((line) => line.trim() !== '');
@@ -207,16 +213,6 @@ async function fileExists(filePath) {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
 ipcMain.handle('select-backup-directory', async () => {
   try {
     const result = await dialog.showOpenDialog({
@@ -277,12 +273,6 @@ ipcMain.handle('get-options', async () => {
     return defaultOptions;
   }
 });
-
-
-
-
-
-
 
 async function setupPrerequisites() {
   try {

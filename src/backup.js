@@ -2,6 +2,7 @@ const fullBackupButton_el = document.getElementById('fullBackupButton');
 const backupProgressDiv_el = document.getElementById('backupProgressDiv');
 const backupProgressBar_el = document.getElementById('backupProgressBar');
 const backupControlsDiv_el = document.getElementById('backupControlsDiv');
+const openBackupButton_el = document.getElementById('openBackupButton');
 
 let backupDirectory;
 let backupLimit;
@@ -24,4 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     backupDirectory = options.fileDirectory;
     backupLimit = options.backupLimit;
     compression = options.compression;
+});
+
+openBackupButton_el.addEventListener('click', async () => {
+    await api.openBackupFolder();
 });
