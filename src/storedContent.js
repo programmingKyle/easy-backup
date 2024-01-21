@@ -94,14 +94,8 @@ async function contentItemClick(itemContainer, path, locationName) {
     itemContainer.addEventListener('click', async () => {
         if (result === 'Directory') {
             folderClick(path, locationName);
-        } else if (result === 'File') {
-            fileClick(path, locationName);
-        } else if (result === 'Error') {
-            console.log('File does not exist');
-            contentContainer_el.classList.add('error');
-            setTimeout(() => {
-                contentContainer_el.classList.remove('error');
-            }, 2000);
+        } else {
+            return;
         }
     });
 
@@ -119,28 +113,6 @@ async function folderClick(path, locationName){
     locationHeader_el.textContent = locationName;
     const result = await api.getCurrentFolderContents({folderLocation: path});
     await populateFolderContent(result);
-}
-
-async function fileClick(path, locationName) {
-    directoryLocation.push(locationName);
-    currentDirectoryLocation = path;
-
-    // Construct the URL parameters without using stringify or join
-    let timerLocation = `notepad.html?path=${encodeURIComponent(path)}&locationName=${encodeURIComponent(locationName)}`;
-
-    // Append the directoryLocation array to the URL
-    if (directoryLocation.length > 0) {
-        timerLocation += '&directoryLocation=';
-
-        for (let i = 0; i < directoryLocation.length; i++) {
-            if (i > 0) {
-                timerLocation += ',';
-            }
-            timerLocation += encodeURIComponent(directoryLocation[i]);
-        }
-    }
-
-    window.location.href = timerLocation;
 }
 
 
