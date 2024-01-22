@@ -54,6 +54,13 @@ selectBackupDirectory_el.addEventListener('click', async () => {
 });
 
 saveOptionsButton_el.addEventListener('click', async () => {
+    if (backupDirectory === ''){
+        backupDirectoryText_el.classList.add('error');
+        setTimeout(() => {
+            backupDirectoryText_el.classList.remove('error');
+        }, 2000);
+        return;
+    }
     const frequency = backupFrequencySelect_el.value;
     const limit = backupRetentionInput_el.value;
     const compression = compressionLevelSelect_el.value;
