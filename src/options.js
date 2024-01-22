@@ -14,6 +14,7 @@ let options;
 document.addEventListener('DOMContentLoaded', async () => {
     options = await api.getOptions();
     if (options.fileDirectory === ''){
+        optionsClose_el.style.display = 'none';
         toggleOptions();
     }
 });
@@ -47,8 +48,8 @@ function toggleOptions(){
 }
 
 selectBackupDirectory_el.addEventListener('click', async () => {
-    backupDirectory = await api.selectBackupDirectory();
-    if (backupDirectory !== null){
+    backupDirectory = await api.selectBackupDirectory({currentDirectory: options.fileDirectory});
+    if (backupDirectory !== ''){
         backupDirectoryText_el.textContent = backupDirectory;
     }
 });

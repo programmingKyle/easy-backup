@@ -239,19 +239,26 @@ async function fileExists(filePath) {
   }
 }
 
-ipcMain.handle('select-backup-directory', async () => {
+ipcMain.handle('select-backup-directory', async (req, data) => {
   try {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory'],
       title: 'Select Backup Directory',
     });
 
+    if (result.canceled){
+      if (data.currentDirectory !== null){
+        return data.currentDirectory;
+      }
+      //return data.currentDirectory !== null ? data.currentDirectory : '';
+    }
+
     const selectedPath = result.filePaths[0];
 
-    return selectedPath || null;
+    return selectedPath || '';
   } catch (err) {
     console.error('Error opening directory dialog:', err);
-    return null;
+    return '';
   }
 });
 

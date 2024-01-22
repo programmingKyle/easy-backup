@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('api', {
     removeFromStored: (data) => ipcRenderer.invoke('remove-from-stored', data),
 
     getOptions: () => ipcRenderer.invoke('get-options'),
-    selectBackupDirectory: () => ipcRenderer.invoke('select-backup-directory'),
+    selectBackupDirectory: (data) => ipcRenderer.invoke('select-backup-directory', data),
     updateOptions: (data) => ipcRenderer.invoke('update-options', data),
 
     // Backup
